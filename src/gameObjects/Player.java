@@ -15,7 +15,7 @@ public class Player extends GameObject {
 
     public boolean isBot = false;
 
-    public Vector2D speed; // скорость игрока по x / y
+    public Vector2D speed = new Vector2D(0.0, 0.0); // скорость игрока по x / y
     public Vector2D maxSpeed = new Vector2D(Main.cellSize / 10.6, Main.cellSize / 10.6); //10.6 - важное число, лучше не менять
 
     public Player(double x, double y, double w, double h) {
