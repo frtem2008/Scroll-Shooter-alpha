@@ -36,7 +36,7 @@ public class Main {
     private static double cameraX = 500;
     private static final double cameraY = 400;
     //миникарта
-    private static int miniMapX = 10, miniMapY = 50, miniMapSize = 128;
+    private static int miniMapX = 50, miniMapY = 50, miniMapSize = 128;
     private static double miniMapScale = 1.0;
     //изображения
     private static Image Wall, Player, Bot, Bullet, MapImage, Background;
@@ -238,6 +238,10 @@ public class Main {
                 if (Keyboard.getM()) {
                     miniMapScale = (frameSize.getHeight() - 20) / (double) miniMapSize;
                     miniMapX = (int) (frameSize.getWidth() / 2 - miniMapSize * miniMapScale / 2);
+
+                    if (Display.isFullScreen) {
+                        miniMapY = 10;
+                    }
                 } else {
                     miniMapScale = 1.0;
                     miniMapX = 20;
@@ -293,7 +297,7 @@ public class Main {
             Bot = ImageIO.read(new File("src/Resources/Images/player evel64.png"));
             Wall = ImageIO.read(new File("src/Resources/Images/iron block64.png"));
             Bullet = ImageIO.read(new File("src/Resources/Images/bullet.jpg"));
-            MapImage = ImageIO.read(new File("src/Resources/Images/Map2.png"));
+            MapImage = ImageIO.read(new File("src/Resources/Images/Map.png"));
             Background = ImageIO.read(new File("src/Resources/Images/background.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
