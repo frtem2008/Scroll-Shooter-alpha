@@ -1,7 +1,10 @@
 package Main;//Класс с окном
 //TODO анимация, миникарта, боты, онлайн
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
 
 public class Display extends JFrame {
     //окно
@@ -24,7 +27,11 @@ public class Display extends JFrame {
     //точка входа
     public static void main(String[] args) {
         //иконка для панели задач
-        frame.setIconImage(new ImageIcon("src/Resources/Images/iron block64.png").getImage());
+        try {
+            frame.setIconImage(ImageIO.read(new File("src/Resources/Images/iron block64.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //активация кнопки с крестиком
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

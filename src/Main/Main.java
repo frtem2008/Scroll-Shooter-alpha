@@ -5,14 +5,17 @@ package Main;
 import Control.Keyboard;
 import Control.Mouse;
 import Drawing.Drawer;
-import Drawing.Game;
+import gameObjects.Game;
 import gameObjects.Player;
 import gameObjects.Wall;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class Main {
     //менять для масштаба
@@ -201,12 +204,16 @@ public class Main {
 
     //функция загрузки изображений (путь к папке: src/Resources/Images/)
     public void loadImages() {
-        Player = new ImageIcon("src/Resources/Images/bot64.png").getImage();
-        Bot = new ImageIcon("src/Resources/Images/player evel64.png").getImage();
-        Wall = new ImageIcon("src/Resources/Images/iron block64.png").getImage();
-        Bullet = new ImageIcon("src/Resources/Images/bullet.jpg").getImage();
-        MapImage = new ImageIcon("src/Resources/Images/Map.png").getImage();
-        Background = new ImageIcon("src/Resources/Images/background.jpg").getImage();
+        try {
+            Player = ImageIO.read(new File("src/Resources/Images/bot64.png"));
+            Bot = ImageIO.read(new File("src/Resources/Images/player evel64.png"));
+            Wall = ImageIO.read(new File("src/Resources/Images/iron block64.png"));
+            Bullet = ImageIO.read(new File("src/Resources/Images/bullet.jpg"));
+            MapImage = ImageIO.read(new File("src/Resources/Images/Map.png"));
+            Background = ImageIO.read(new File("src/Resources/Images/background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //перезагрузка игры

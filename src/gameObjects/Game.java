@@ -1,9 +1,5 @@
-package Drawing;
+package gameObjects;
 //класс для хранения игры
-
-import gameObjects.Bullet;
-import gameObjects.Player;
-import gameObjects.Wall;
 
 import java.util.ArrayList;
 

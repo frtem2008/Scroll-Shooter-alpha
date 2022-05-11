@@ -2,6 +2,7 @@ package Drawing;
 //Класс для рисования игры
 
 import Utils.Vector2D;
+import gameObjects.Game;
 
 import java.awt.*;
 
