@@ -35,12 +35,47 @@ public class Main {
     //смещение камеры (положения игрока) относительно левого верхнего угла экрана
     private static double cameraX = 500;
     private static final double cameraY = 400;
+    //миникарта
+    private static int miniMapX = 10, miniMapY = 50, miniMapSize = 128;
+    private static double miniMapScale = 1.0;
     //изображения
     private static Image Wall, Player, Bot, Bullet, MapImage, Background;
     private static Game game = new Game();
+    private static BufferedImage miniMapImage;
     private final Keyboard keyboard = new Keyboard();
     //клавиатура + мышь
     public Mouse mouse = new Mouse();
+
+    //инициализация миникарты (замена цветов)
+    private BufferedImage initMiniMap(BufferedImage map) {
+        BufferedImage miniMap = new BufferedImage(map.getWidth(), map.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int i = 0; i < map.getWidth(); i++) {
+            for (int j = 0; j < map.getHeight(); j++) {
+                if (map.getRGB(i, j) == new Color(0, 0, 255).getRGB() ||
+                        map.getRGB(i, j) == new Color(255, 255, 255).getRGB() ||
+                        map.getRGB(i, j) == new Color(255, 0, 0).getRGB()) {
+                    miniMap.setRGB(i, j, new Color(0, 0, 0, 128).getRGB());
+                } else {
+                    miniMap.setRGB(i, j, map.getRGB(i, j));
+                }
+            }
+        }
+
+        return miniMap;
+    }
+
+    //отрисовка миникарты
+    private void drawMiniMap(Graphics g, final BufferedImage miniMapImage, int playerX, int playerY) {
+        for (int i = 0; i < miniMapImage.getWidth(); i++)
+            for (int j = 0; j < miniMapImage.getHeight(); j++)
+                if (miniMapImage.getRGB(i, j) == new Color(0, 255, 0).getRGB())
+                    miniMapImage.setRGB(i, j, new Color(0, 0, 0, 128).getRGB());
+
+        miniMapImage.setRGB(playerX / cellSize, playerY / cellSize, new Color(0, 255, 0).getRGB());
+        miniMapImage.setRGB(0, 0, new Color(0, 0, 0).getRGB());
+
+        g.drawImage(miniMapImage, miniMapX, miniMapY, (int) (miniMapSize * miniMapScale), (int) (miniMapSize * miniMapScale), null);
+    }
 
     private Game initGame(Image mapImage) {
         System.out.println("Initialising game...");
@@ -68,6 +103,7 @@ public class Main {
                 }
             }
         }
+
         //TODO слияние соседних стен в одну
         System.out.println("Players: " + res.players.size());
         System.out.println("Bullets: " + res.bullets.size());
@@ -108,11 +144,17 @@ public class Main {
             frameLength = 1000.0 / 60;
             int frames = 0;
 
+            //размер JFrame на самом деле
+            Dimension frameSize = frame.getContentPane().getSize();
+
+
             //главный игровой цикл
             while (true) {
                 //время начала кадра
                 start = System.currentTimeMillis();
 
+                //обновление размера JFrame
+                frameSize = frame.getContentPane().getSize();
                 //получение информации о буфере
                 frameGraphics = (Graphics2D) bs.getDrawGraphics();
 
@@ -126,6 +168,9 @@ public class Main {
                         (int) ((cameraY) - mainPlayerY),
                         mainPlayerX, mainPlayerY, RENDERDISTANCE * cellSize
                 );
+                //отрисовка миникарты
+                drawMiniMap(frameImage.getGraphics(), miniMapImage, mainPlayerX, mainPlayerY);
+
                 //рисование на итоговом окне
                 frameGraphics.drawImage(frameImage, 0, 0, frameImage.getWidth(), frameImage.getHeight(), null);
 
@@ -165,10 +210,12 @@ public class Main {
                         frame.setExtendedState(Frame.NORMAL);
                         frame.setBounds(Display.x, Display.y, Display.w, Display.h);
                         cameraX = 500;
+                        miniMapY = 40;
                     } else {
                         cameraX = Display.w / 1.2;
                         frame.setUndecorated(true);
                         frame.setExtendedState(6);
+                        miniMapY = 20;
                     }
                     Display.isFullScreen = !Display.isFullScreen;
                     frame.setVisible(true);
@@ -179,12 +226,49 @@ public class Main {
                     System.out.println("Выход");
                     System.exit(20);
                 }
-                //TODO перезагрузка игры
-                // (по идее долждно обнавлять карту при новом изображении, но этого не происходит)
+
+                //перезагрузка игры
                 if (Keyboard.getR()) {
                     System.out.println("Reloading...");
                     reload();
                     System.out.println("Reloading finished");
+                }
+
+                //карта на полный экран
+                if (Keyboard.getM()) {
+                    miniMapScale = (frameSize.getHeight() - 20) / (double) miniMapSize;
+                    miniMapX = (int) (frameSize.getWidth() / 2 - miniMapSize * miniMapScale / 2);
+                } else {
+                    miniMapScale = 1.0;
+                    miniMapX = 20;
+                }
+
+                //увеличение миникарты
+                if (Keyboard.getCtrl() && Keyboard.getShift() && Keyboard.getEquals()) {
+                    while (Keyboard.getCtrl() && Keyboard.getShift() && Keyboard.getEquals()) {
+                        keyboard.update();
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (miniMapSize < 256)
+                        miniMapSize += 64;
+                }
+                //уменьшение миникарты
+                if (Keyboard.getCtrl() && Keyboard.getShift() && Keyboard.getMinus()) {
+                    while (Keyboard.getCtrl() && Keyboard.getShift() && Keyboard.getMinus()) {
+                        keyboard.update();
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (miniMapSize > 128)
+                        miniMapSize -= 64;
                 }
 
                 //получение координат игрока (центра кадра)
@@ -209,7 +293,7 @@ public class Main {
             Bot = ImageIO.read(new File("src/Resources/Images/player evel64.png"));
             Wall = ImageIO.read(new File("src/Resources/Images/iron block64.png"));
             Bullet = ImageIO.read(new File("src/Resources/Images/bullet.jpg"));
-            MapImage = ImageIO.read(new File("src/Resources/Images/Map.png"));
+            MapImage = ImageIO.read(new File("src/Resources/Images/Map2.png"));
             Background = ImageIO.read(new File("src/Resources/Images/background.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -220,5 +304,6 @@ public class Main {
     public void reload() {
         loadImages();
         game = initGame(MapImage);
+        miniMapImage = initMiniMap((BufferedImage) MapImage);
     }
 }
