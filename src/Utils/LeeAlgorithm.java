@@ -1,4 +1,4 @@
-package utils;
+package Utils;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,7 @@ public class LeeAlgorithm {
         }
     }
 
-    public static void printMap(int[][] map) {
+    private static void printMap(int[][] map) {
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 System.out.printf("%3s", map[i][j] == -1 ? "##" : String.valueOf(map[i][j]));
@@ -33,22 +33,31 @@ public class LeeAlgorithm {
                 "##############",
         };
 
+        Vector2D from = Vector2D.infVector, to = Vector2D.infVector;
         boolean[][] map = new boolean[strMap.length][strMap[0].length()];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
-                map[i][j] = strMap[i].charAt(j) == '#';
+                if (strMap[i].charAt(j) == '#') {
+                    map[i][j] = true;
+                } else {
+                    map[i][j] = false;
+                    if (strMap[i].charAt(j) == '1')
+                        from = new Vector2D(i, j);
+                    if (strMap[i].charAt(j) == '2')
+                        to = new Vector2D(i, j);
+                }
             }
         }
+        ArrayList<Vector2D> path = Utils.LeeAlgorithm.findPath(map, to, from);
 
         printMap(map);
-        var path = findPath(map, new Vector2D(1, 1), new Vector2D(5, 2));
         for (Vector2D ij : path) {
             System.out.print(ij.x + " " + ij.y + " -> ");
         }
         System.out.println("END");
     }
 
-    public static ArrayList<Vector2D> neighbours(boolean[][] map, Vector2D vecCell) {
+    private static ArrayList<Vector2D> neighbours(boolean[][] map, Vector2D vecCell) {
         int[] cell = new int[2];
         cell[0] = (int) vecCell.x;
         cell[1] = (int) vecCell.y;
@@ -65,19 +74,15 @@ public class LeeAlgorithm {
     }
 
     public static ArrayList<Vector2D> findPath(boolean[][] map, Vector2D fromVec, Vector2D toVec) {
-        int[] from = new int[2];
-        int[] to = new int[2];
-        from[0] = (int) fromVec.x;
-        from[1] = (int) fromVec.y;
-        to[0] = (int) toVec.x;
-        to[1] = (int) toVec.y;
+        System.out.println(map.length + " MAPPPPPPPPPPPPPP");
+        System.out.println(map[0].length + " MAPPPPPPPPPPPPPP [0]");
         int[][] fill = new int[map.length][map[0].length];
         int wave = 1;
-        fill[from[0]][from[1]] = wave;
+        fill[(int) fromVec.x][(int) fromVec.y] = wave;
         ArrayList<Vector2D> prevWaveCells = new ArrayList<>();
         prevWaveCells.add(fromVec);
         boolean canFind = true;
-        while (fill[to[0]][to[1]] == 0 && canFind) {
+        while (fill[(int) toVec.x][(int) toVec.y] == 0 && canFind) {
             ArrayList<Vector2D> curFilledCells = new ArrayList<>();
             for (Vector2D prevCell : prevWaveCells) {
                 for (Vector2D n : neighbours(map, prevCell)) {
@@ -96,7 +101,7 @@ public class LeeAlgorithm {
         if (canFind) {
             ArrayList<Vector2D> res = new ArrayList<>();
             int cur = wave;
-            System.out.println(cur);
+            //System.out.println(cur);
             Vector2D curCell = toVec;
             res.add(curCell);
             while (cur > 1) {

@@ -1,5 +1,4 @@
-//Класс с окном
-
+package Main;//Класс с окном
 //TODO анимация, миникарта, боты, онлайн
 
 import javax.swing.*;
@@ -14,25 +13,28 @@ public class Display extends JFrame {
     //отслеживание полноэкранного режима
     public static boolean isFullScreen = false;
 
-    //подключение графических библиотек
+    //экземпляр главного класса
+    public static Main m;
+
+    //подключение графической библиотеки
     static {
         System.setProperty("sun.java2d.opengl", "True");
     }
 
     //точка входа
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         //иконка для панели задач
-        frame.setIconImage(new ImageIcon("src/resources/images/Icon.png").getImage());
+        frame.setIconImage(new ImageIcon("src/Resources/Images/iron block64.png").getImage());
 
         //активация кнопки с крестиком
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        //разворачиваем сразу на полный экран
-        frame.setBounds(300, 0, w, h);
+        //разворачиваем
+        frame.setBounds(x, y, w, h);
         frame.setVisible(true);
 
         //создаём новый экземпляр игры и начинаем рисовать
-        Main m = new Main();
+        m = new Main();
         m.startDrawing(frame);
     }
 }

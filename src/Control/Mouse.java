@@ -6,13 +6,14 @@ import java.awt.event.MouseMotionListener;
 
 public class Mouse implements MouseListener, MouseMotionListener {
     //позиция + кол-во прокрученных тиков
-    public boolean mouseClicked;
-    public int x, y, scroll;
+    public static boolean mouseClicked;
+    public static int x, y, scroll;
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("X: " + e.getX() + " Y: " + e.getY());
-        //Main.gameObjects.add(new GameObject(e.getX(), e.getY(), 100, 100, Main.Platform, "block"));
+        //
+        //System.out.println("X: " + e.getX() + " Y: " + e.getY());
+        //Main.Main.gameObjects.add(new GameObject(e.getX(), e.getY(), 100, 100, Main.Main.Platform, "block"));
     }
 
     @Override
@@ -23,8 +24,8 @@ public class Mouse implements MouseListener, MouseMotionListener {
     @Override
     public void mouseReleased(MouseEvent e) {
         mouseClicked = false;
-        System.out.println("X: " + e.getX() + " Y: " + e.getY());
-        //Main.gameObjects.add(new GameObject(e.getX(), e.getY(), 100, 100, Main.Platform, "block"));
+        //System.out.println("X: " + e.getX() + " Y: " + e.getY());
+        //Main.Main.gameObjects.add(new GameObject(e.getX(), e.getY(), 100, 100, Main.Main.Platform, "block"));
 
     }
 

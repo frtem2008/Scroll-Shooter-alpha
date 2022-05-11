@@ -1,12 +1,14 @@
 package gameObjects;
+//снаряд
 
-import utils.GameObject;
-import utils.Vector2D;
+import Utils.GameObject;
+import Utils.Vector2D;
 
 import java.awt.*;
 
 public class Bullet extends GameObject {
-    public Vector2D speed = Vector2D.zeroVector;
+    //скорость снаряда
+    private final Vector2D speed = Vector2D.zeroVector;
 
     public Bullet(double x, double y, double w, double h) {
         super(x, y, w, h);
@@ -28,6 +30,7 @@ public class Bullet extends GameObject {
         this.speed.y = ySpeed;
     }
 
+    //передвижение в соответсвии со скоростью
     public void move() {
         cords.x += speed.x;
         cords.y += speed.y;
