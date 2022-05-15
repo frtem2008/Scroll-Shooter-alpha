@@ -74,8 +74,6 @@ public class LeeAlgorithm {
     }
 
     public static ArrayList<Vector2D> findPath(boolean[][] map, Vector2D fromVec, Vector2D toVec) {
-        System.out.println(map.length + " MAPPPPPPPPPPPPPP");
-        System.out.println(map[0].length + " MAPPPPPPPPPPPPPP [0]");
         int[][] fill = new int[map.length][map[0].length];
         int wave = 1;
         fill[(int) fromVec.x][(int) fromVec.y] = wave;
@@ -95,13 +93,12 @@ public class LeeAlgorithm {
             prevWaveCells = curFilledCells;
             canFind = prevWaveCells.size() > 0;
             wave++;
-            printMap(fill);
-            System.out.println();
+            //printMap(fill);
+            //System.out.println();
         }
         if (canFind) {
             ArrayList<Vector2D> res = new ArrayList<>();
             int cur = wave;
-            //System.out.println(cur);
             Vector2D curCell = toVec;
             res.add(curCell);
             while (cur > 1) {

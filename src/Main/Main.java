@@ -1,10 +1,12 @@
 package Main;
 //основной игровой класс
-//TODO диагональная скорость, поспать, боты, пушки)))))
+//TODO диагональная скорость, поспать, боты, пушки))))) КОРОЛЕВСКАЯ БИТВА С БОТАМИ ААААААА ПЛАНЫЫЫЫ
+//TODO binary search everywhere, where possible
 
 import Control.Keyboard;
 import Control.Mouse;
 import Drawing.Drawer;
+import Utils.LeeAlgorithm;
 import gameObjects.Game;
 import gameObjects.Player;
 import gameObjects.Wall;
@@ -23,37 +25,50 @@ public class Main {
     //TODO тики в кадр
     private static final int TICKSPERFRAME = 20;
     //менять для прогрузки (чем больше, тем больше лаги, но на больших мониторах дальше видно)
-    private static final int RENDERDISTANCE = 16;
-    //рисовалка и игра
+    private static final int RENDERDISTANCE = defaultCellSize / 4;
+    //рисовалка
     private static final Drawer drawer = new Drawer();
     //размер клеток
     public static int cellSize = defaultCellSize;
     //пока ненужная карта (нужна для бота)
-    private static String[] map;
+    public static boolean[][] botMap;
     //коодинаты игрока, который находится в центре экрана
-    private static int mainPlayerX, mainPlayerY;
+    public static int mainPlayerX, mainPlayerY;
     //смещение камеры (положения игрока) относительно левого верхнего угла экрана
     private static double cameraX = 500;
     private static final double cameraY = 400;
+
     //миникарта
     private static int miniMapX = 50, miniMapY = 50, miniMapSize = 128;
     private static double miniMapScale = 1.0;
     //изображения
     private static Image Wall, Player, Bot, Bullet, MapImage, Background;
+    //игра
     private static Game game = new Game();
+    //цвет игрока на миникарте
+    private static final Color playerMiniMapColor = new Color(255, 255, 0);
+    //изображение миникарты на жкране
     private static BufferedImage miniMapImage;
-    private final Keyboard keyboard = new Keyboard();
     //клавиатура + мышь
-    public Mouse mouse = new Mouse();
+    public final Mouse mouse = new Mouse();
+    private final Keyboard keyboard = new Keyboard();
 
     //инициализация миникарты (замена цветов)
-    private BufferedImage initMiniMap(BufferedImage map) {
+    private BufferedImage initMap(BufferedImage map) {
+        System.out.println("Initialising map");
         BufferedImage miniMap = new BufferedImage(map.getWidth(), map.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        botMap = new boolean[map.getWidth()][map.getHeight()];
+        int checkColor;
         for (int i = 0; i < map.getWidth(); i++) {
             for (int j = 0; j < map.getHeight(); j++) {
-                if (map.getRGB(i, j) == new Color(0, 0, 255).getRGB() ||
-                        map.getRGB(i, j) == new Color(255, 255, 255).getRGB() ||
-                        map.getRGB(i, j) == new Color(255, 0, 0).getRGB()) {
+                checkColor = map.getRGB(i, j);
+                botMap[j][i] = checkColor == new Color(0, 0, 0).getRGB() ||
+                        checkColor == new Color(255, 0, 0).getRGB();
+
+                if (checkColor == new Color(0, 0, 255).getRGB() ||
+                        checkColor == new Color(255, 255, 255).getRGB() ||
+                        checkColor == new Color(255, 0, 0).getRGB()
+                ) {
                     miniMap.setRGB(i, j, new Color(0, 0, 0, 128).getRGB());
                 } else {
                     miniMap.setRGB(i, j, map.getRGB(i, j));
@@ -61,6 +76,9 @@ public class Main {
             }
         }
 
+        LeeAlgorithm.printMap(botMap);
+
+        System.out.println("Initialising map finished");
         return miniMap;
     }
 
@@ -68,10 +86,10 @@ public class Main {
     private void drawMiniMap(Graphics g, final BufferedImage miniMapImage, int playerX, int playerY) {
         for (int i = 0; i < miniMapImage.getWidth(); i++)
             for (int j = 0; j < miniMapImage.getHeight(); j++)
-                if (miniMapImage.getRGB(i, j) == new Color(0, 255, 0).getRGB())
+                if (miniMapImage.getRGB(i, j) == playerMiniMapColor.getRGB())
                     miniMapImage.setRGB(i, j, new Color(0, 0, 0, 128).getRGB());
 
-        miniMapImage.setRGB(playerX / cellSize, playerY / cellSize, new Color(0, 255, 0).getRGB());
+        miniMapImage.setRGB(playerX / cellSize, playerY / cellSize, playerMiniMapColor.getRGB());
         miniMapImage.setRGB(0, 0, new Color(0, 0, 0).getRGB());
 
         g.drawImage(miniMapImage, miniMapX, miniMapY, (int) (miniMapSize * miniMapScale), (int) (miniMapSize * miniMapScale), null);
@@ -208,11 +226,11 @@ public class Main {
                     if (Display.isFullScreen) {
                         frame.setUndecorated(false);
                         frame.setExtendedState(Frame.NORMAL);
-                        frame.setBounds(Display.x, Display.y, Display.w, Display.h);
+                        frame.setBounds(Display.x, Display.y, (int) frameSize.getWidth(), (int) frameSize.getHeight());
                         cameraX = 500;
                         miniMapY = 40;
                     } else {
-                        cameraX = Display.w / 1.2;
+                        cameraX = frameSize.getWidth() / 1.2;
                         frame.setUndecorated(true);
                         frame.setExtendedState(6);
                         miniMapY = 20;
@@ -292,6 +310,7 @@ public class Main {
 
     //функция загрузки изображений (путь к папке: src/Resources/Images/)
     public void loadImages() {
+        System.out.println("Loading images");
         try {
             Player = ImageIO.read(new File("src/Resources/Images/bot64.png"));
             Bot = ImageIO.read(new File("src/Resources/Images/player evel64.png"));
@@ -300,14 +319,17 @@ public class Main {
             MapImage = ImageIO.read(new File("src/Resources/Images/Map.png"));
             Background = ImageIO.read(new File("src/Resources/Images/background.jpg"));
         } catch (IOException e) {
+            System.out.println("Failed loading images");
             e.printStackTrace();
+            return;
         }
+        System.out.println("Finished loading images");
     }
 
     //перезагрузка игры
     public void reload() {
         loadImages();
         game = initGame(MapImage);
-        miniMapImage = initMiniMap((BufferedImage) MapImage);
+        miniMapImage = initMap((BufferedImage) MapImage);
     }
 }

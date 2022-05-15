@@ -1,6 +1,8 @@
 package gameObjects;
 //класс для хранения игры
 
+import Main.Main;
+
 import java.util.ArrayList;
 
 public class Game {
@@ -29,9 +31,9 @@ public class Game {
         for (int i = 0; i < players.size(); i++) {
             if (!players.get(i).isBot) {
                 players.get(i).move(this);
-            } else if (frames % 30 == 0) {
+            } else if (frames % 15 == 0) {
                 //TODO move bot
-                //players.get(i).moveBot(Main.map, Main.mainPlayerX, Main.mainPlayerY);
+                players.get(i).moveBot(Main.botMap, Main.mainPlayerX, Main.mainPlayerY, (int) players.get(i).cords.x, (int) players.get(i).cords.y);
             }
         }
     }

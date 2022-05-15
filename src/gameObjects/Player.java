@@ -5,6 +5,7 @@ import Control.Keyboard;
 import Control.Mouse;
 import Main.Main;
 import Utils.GameObject;
+import Utils.LeeAlgorithm;
 import Utils.Vector2D;
 
 import java.awt.*;
@@ -92,6 +93,7 @@ public class Player extends GameObject {
 
         //горизонтальные столкновения
         hitbox.x += speed.x;
+
         for (int i = 0; i < game.walls.size(); i++) {
             //проверка на то, можно ли вообще столкнуться
             if (game.walls.get(i).cords.y > collisionArea.y + collisionArea.height &&
@@ -145,64 +147,66 @@ public class Player extends GameObject {
     }
 
     //TODO перемещение бота В РАЗРАБОТКЕ
-    public int moveBot(String[] strMap, int playerX, int playerY) {
+    public int moveBot(final boolean[][] map, int playerX, int playerY, int botX, int botY) {
         if (isBot) {
-            Vector2D from = Vector2D.infVector, to = Vector2D.infVector;
-            boolean[][] map = new boolean[strMap.length][strMap[0].length()];
+            System.out.println("moving");
+            /*System.out.println(map[botX / Main.cellSize][botY / Main.cellSize]);
+            System.out.println(botY / Main.cellSize);
+            System.out.println(botX / Main.cellSize);
+
             for (int i = 0; i < map.length; i++) {
                 for (int j = 0; j < map[0].length; j++) {
-                    map[i][j] = strMap[i].charAt(j) == '#';
+                    if (map[botY / Main.cellSize][botX / Main.cellSize]) {
+
+                        System.out.println("VJSIJVE");
+                    }
                 }
             }
-            from = new Vector2D((float) playerX / Main.cellSize, (float) playerY / Main.cellSize);
+            System.out.println("Checked");
+
+
+            System.exit(200);*/
+            //TODO как то пофиксить ботов, проходящих друг через друга
+            map[botY / Main.cellSize][botX / Main.cellSize] = false;
+            LeeAlgorithm.printMap(map);
+
+            Vector2D from, to;
+            from = new Vector2D(playerY / Main.cellSize, playerX / Main.cellSize);
             to = new Vector2D(cords.y / Main.cellSize, cords.x / Main.cellSize);
-            System.out.println("FIND path from (" + from.x + ", " + from.y + ") to (" + to.x + ", " + to.y + ")!!!");
+
             ArrayList<Vector2D> path;
-            //TODO исправить бота он идет направо все время 
+
             if (from != Vector2D.infVector && to != Vector2D.infVector) {
                 path = Utils.LeeAlgorithm.findPath(map, to, from);
                 if (path != null) {
                     for (Vector2D ij : path) {
-                        if (ij != null)
-                            System.out.print(ij.x + " " + ij.y + " -> ");
-                        else {
-                            System.out.println("NULL PATH VECTOR");
+                        if (ij == null)
                             return 5;
-                        }
                     }
 
-                    System.out.println("FOUND path from (" + from.x + ", " + from.y + ") to (" + to.x + ", " + to.y + ")!!!");
                     if (path.size() > 2) {
                         if (path.get(0).y < path.get(1).y) {
                             cords.x += Main.cellSize;
-                            System.out.println("Moving right");
                         } else if (path.get(0).y > path.get(1).y) {
                             cords.x -= Main.cellSize;
-                            System.out.println("Moving left");
                         }
                         if (path.get(0).x > path.get(1).x) {
                             cords.y -= Main.cellSize;
-                            System.out.println("Moving up");
                         } else if (path.get(0).x < path.get(1).x) {
                             cords.y += Main.cellSize;
-                            System.out.println("Moving down");
                         }
 
-                        System.out.println("BOT X: " + cords.x + " BOT Y: " + cords.y);
                         return 1;
                     } else {
-                        System.out.println("No path from (" + from.x + ", " + from.y + ") to (" + to.x + ", " + to.y + ")!!!");
                         return 0;
                     }
                 } else {
-                    System.out.println("No path from (" + from.x + ", " + from.y + ") to (" + to.x + ", " + to.y + ")!!!");
                     return 2;
                 }
             } else {
                 return 3;
             }
         } else {
-            System.out.println("KANOSENBV EIB");
             return 4;
         }
     }
