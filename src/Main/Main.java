@@ -7,6 +7,7 @@ import Control.Keyboard;
 import Control.Mouse;
 import Drawing.Drawer;
 import Utils.LeeAlgorithm;
+import gameObjects.Bot;
 import gameObjects.Game;
 import gameObjects.Player;
 import gameObjects.Wall;
@@ -57,12 +58,12 @@ public class Main {
     private BufferedImage initMap(BufferedImage map) {
         System.out.println("Initialising map");
         BufferedImage miniMap = new BufferedImage(map.getWidth(), map.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        botMap = new boolean[map.getWidth()][map.getHeight()];
+        boolean[][] botMapTmp = new boolean[map.getWidth()][map.getHeight()];
         int checkColor;
         for (int i = 0; i < map.getWidth(); i++) {
             for (int j = 0; j < map.getHeight(); j++) {
                 checkColor = map.getRGB(i, j);
-                botMap[j][i] = checkColor == new Color(0, 0, 0).getRGB() ||
+                botMapTmp[j][i] = checkColor == new Color(0, 0, 0).getRGB() ||
                         checkColor == new Color(255, 0, 0).getRGB();
 
                 if (checkColor == new Color(0, 0, 255).getRGB() ||
@@ -76,7 +77,8 @@ public class Main {
             }
         }
 
-        LeeAlgorithm.printMap(botMap);
+        LeeAlgorithm.printMap(botMapTmp);
+        botMap = botMapTmp;
 
         System.out.println("Initialising map finished");
         return miniMap;
@@ -115,9 +117,9 @@ public class Main {
                 if (mapPixel.getRGB(i, j) == new Color(0, 0, 0).getRGB()) {
                     res.walls.add(new Wall(i * cellSize, j * cellSize, cellSize, cellSize, Wall));
                 } else if (mapPixel.getRGB(i, j) == new Color(255, 0, 0).getRGB()) {
-                    res.players.add(new Player(i * cellSize, j * cellSize, cellSize, cellSize, Bot, true));
+                    res.bots.add(new Bot(i * cellSize, j * cellSize, cellSize, cellSize, Bot));
                 } else if (mapPixel.getRGB(i, j) == new Color(0, 0, 255).getRGB()) {
-                    res.players.add(new Player(i * cellSize, j * cellSize, cellSize, cellSize, Player, false));
+                    res.players.add(new Player(i * cellSize, j * cellSize, cellSize, cellSize, Player));
                 }
             }
         }
@@ -135,7 +137,6 @@ public class Main {
         new Thread(() -> {
             //подгружаем изображения и прогружаем игру
             reload();
-
             //привязываем слушатели
             frame.addKeyListener(keyboard);
             frame.addMouseListener(mouse);
@@ -198,19 +199,6 @@ public class Main {
 
                 //показ буфера на холсте
                 bs.show();
-
-                //замер времени, ушедшего на отрисовку кадра
-                end = System.currentTimeMillis();
-                len = end - start;
-
-                //стабилизация фпс
-                if (len < frameLength) {
-                    try {
-                        Thread.sleep((long) (frameLength - len));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
 
                 //разворот на полный экран
                 if (Keyboard.getF11()) {
@@ -294,16 +282,28 @@ public class Main {
                 }
 
                 //получение координат игрока (центра кадра)
-                for (int i = 0; i < game.players.size(); i++) {
-                    if (!game.players.get(i).isBot) {
-                        mainPlayerX = (int) game.players.get(i).cords.x;
-                        mainPlayerY = (int) game.players.get(i).cords.y;
-                    }
+                if (game.players.size() > 0) {
+                    mainPlayerX = (int) game.players.get(0).cords.x;
+                    mainPlayerY = (int) game.players.get(0).cords.y;
                 }
                 //обновления клавиатуры и игры
                 game.tick(frames);
                 keyboard.update();
                 frames++;
+
+                //замер времени, ушедшего на отрисовку кадра
+                end = System.currentTimeMillis();
+                len = end - start;
+
+                //стабилизация фпс
+                if (len < frameLength) {
+                    try {
+                        Thread.sleep((long) (frameLength - len));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         }).start();
     }
@@ -316,7 +316,7 @@ public class Main {
             Bot = ImageIO.read(new File("src/Resources/Images/player evel64.png"));
             Wall = ImageIO.read(new File("src/Resources/Images/iron block64.png"));
             Bullet = ImageIO.read(new File("src/Resources/Images/bullet.jpg"));
-            MapImage = ImageIO.read(new File("src/Resources/Images/Map.png"));
+            MapImage = ImageIO.read(new File("src/Resources/Images/Map2.png"));
             Background = ImageIO.read(new File("src/Resources/Images/background.jpg"));
         } catch (IOException e) {
             System.out.println("Failed loading images");

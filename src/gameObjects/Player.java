@@ -5,16 +5,11 @@ import Control.Keyboard;
 import Control.Mouse;
 import Main.Main;
 import Utils.GameObject;
-import Utils.LeeAlgorithm;
 import Utils.Vector2D;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Player extends GameObject {
-
-    public boolean isBot = false;
-
     public Vector2D speed = new Vector2D(0.0, 0.0); // скорость игрока по x / y
     public Vector2D maxSpeed = new Vector2D(Main.cellSize / 10.6, Main.cellSize / 10.6); //10.6 - важное число, лучше не менять
 
@@ -22,9 +17,8 @@ public class Player extends GameObject {
         super(x, y, w, h);
     }
 
-    public Player(double x, double y, double w, double h, Image texture, boolean isBot) {
+    public Player(double x, double y, double w, double h, Image texture) {
         super(x, y, w, h, texture);
-        this.isBot = isBot;
     }
 
     //движение игрока
@@ -144,70 +138,5 @@ public class Player extends GameObject {
         //перемещение хитбокса
         hitbox.x = (int) cords.x;
         hitbox.y = (int) cords.y;
-    }
-
-    //TODO перемещение бота В РАЗРАБОТКЕ
-    public int moveBot(final boolean[][] map, int playerX, int playerY, int botX, int botY) {
-        if (isBot) {
-            System.out.println("moving");
-            /*System.out.println(map[botX / Main.cellSize][botY / Main.cellSize]);
-            System.out.println(botY / Main.cellSize);
-            System.out.println(botX / Main.cellSize);
-
-            for (int i = 0; i < map.length; i++) {
-                for (int j = 0; j < map[0].length; j++) {
-                    if (map[botY / Main.cellSize][botX / Main.cellSize]) {
-
-                        System.out.println("VJSIJVE");
-                    }
-                }
-            }
-            System.out.println("Checked");
-
-
-            System.exit(200);*/
-            //TODO как то пофиксить ботов, проходящих друг через друга
-            map[botY / Main.cellSize][botX / Main.cellSize] = false;
-            LeeAlgorithm.printMap(map);
-
-            Vector2D from, to;
-            from = new Vector2D(playerY / Main.cellSize, playerX / Main.cellSize);
-            to = new Vector2D(cords.y / Main.cellSize, cords.x / Main.cellSize);
-
-            ArrayList<Vector2D> path;
-
-            if (from != Vector2D.infVector && to != Vector2D.infVector) {
-                path = Utils.LeeAlgorithm.findPath(map, to, from);
-                if (path != null) {
-                    for (Vector2D ij : path) {
-                        if (ij == null)
-                            return 5;
-                    }
-
-                    if (path.size() > 2) {
-                        if (path.get(0).y < path.get(1).y) {
-                            cords.x += Main.cellSize;
-                        } else if (path.get(0).y > path.get(1).y) {
-                            cords.x -= Main.cellSize;
-                        }
-                        if (path.get(0).x > path.get(1).x) {
-                            cords.y -= Main.cellSize;
-                        } else if (path.get(0).x < path.get(1).x) {
-                            cords.y += Main.cellSize;
-                        }
-
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                } else {
-                    return 2;
-                }
-            } else {
-                return 3;
-            }
-        } else {
-            return 4;
-        }
     }
 }

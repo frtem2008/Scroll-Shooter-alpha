@@ -31,10 +31,7 @@ public class Drawer {
             if (new Vector2D(toDraw.players.get(i).cords.x - playerX, toDraw.players.get(i).cords.y - playerY).length() < RENDERDISTANCE) {
                 toDraw.players.get(i).draw(g, xLayout, yLayout);
                 if (showHitboxes)
-                    if (!toDraw.players.get(i).isBot)
-                        toDraw.players.get(i).drawHitbox(g, xLayout, yLayout, Color.BLUE);
-                    else
-                        toDraw.players.get(i).drawHitbox(g, xLayout, yLayout, Color.CYAN);
+                    toDraw.players.get(i).drawHitbox(g, xLayout, yLayout, Color.BLUE);
             }
         }
         //отрисовка стен
@@ -43,6 +40,13 @@ public class Drawer {
                 toDraw.walls.get(i).draw(g, xLayout, yLayout);
                 if (showHitboxes)
                     toDraw.walls.get(i).drawHitbox(g, xLayout, yLayout, Color.RED);
+            }
+        }
+        for (int i = 0; i < toDraw.bots.size(); i++) {
+            if (new Vector2D(toDraw.bots.get(i).cords.x - playerX, toDraw.bots.get(i).cords.y - playerY).length() < RENDERDISTANCE) {
+                toDraw.bots.get(i).draw(g, xLayout, yLayout);
+                if (showHitboxes)
+                    toDraw.bots.get(i).drawHitbox(g, xLayout, yLayout, Color.RED);
             }
         }
     }
